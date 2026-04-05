@@ -65,7 +65,7 @@ const SLIDE_SPEED := 1200.0
 const PANEL_WIDTH := 420.0
 const TOOLBAR_HEIGHT := 36.0
 const LINE_HEIGHT := 24.0     # Height of each editor line
-const MAX_VISIBLE_LINES := 8  # Max lines before scrolling
+const MIN_VISIBLE_LINES := 8  # Minimum visible lines (fallback)
 const PIANOROLL_CYCLES := 4.0
 const PIANOROLL_PLAYHEAD := 0.5  # Fraction of width where "now" is
 
@@ -645,8 +645,8 @@ func _ensure_cursor_visible() -> void:
 	## Scroll the editor so the current line is visible.
 	if _current_line < _editor_scroll:
 		_editor_scroll = _current_line
-	elif _current_line >= _editor_scroll + MAX_VISIBLE_LINES:
-		_editor_scroll = _current_line - MAX_VISIBLE_LINES + 1
+	elif _current_line >= _editor_scroll + MIN_VISIBLE_LINES:
+		_editor_scroll = _current_line - MIN_VISIBLE_LINES + 1
 
 func _word_boundary_left() -> int:
 	var p: int = _editor_cursor - 1
@@ -1995,8 +1995,11 @@ func _draw_panel() -> void:
 	# -- Editor Lines (multi-line with per-line visualizers) --
 	var ey: float = TOOLBAR_HEIGHT + 4.0
 	var draw_y: float = ey
+	# Calculate how many lines fit in the available panel height
+	var available_h: float = ph - ey - 4.0
+	var max_visible: int = maxi(MIN_VISIBLE_LINES, int(available_h / LINE_HEIGHT))
 
-	for i in range(_editor_scroll, mini(_editor_scroll + MAX_VISIBLE_LINES, _lines.size())):
+	for i in range(_editor_scroll, mini(_editor_scroll + max_visible, _lines.size())):
 		var is_current: bool = (i == _current_line)
 		var viz: String = _line_viz(i)
 

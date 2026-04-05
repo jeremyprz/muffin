@@ -1,0 +1,11 @@
+// Intro — slow, mysterious, ominous
+setcps(0.2)
+
+stack(
+  sub: note("<c1 c1 eb1 c1>").s("sine").gain(0.8).legato(1.5),
+  pad: note("<[c2,eb2,g2] [c2,eb2,ab2] [bb1,d2,f2] [c2,eb2,g2]>").s("triangle").gain(0.4).legato(1.2),
+  mid: note("<[c3,g3] [eb3,bb3] [f3,c4] [eb3,bb3]>").s("sawtooth").gain(0.25).legato(0.8),
+  sparkle: note("c5 eb5 g5 bb5 c6 g5 eb5 bb4").fast(2).degrade().s("sine").gain(0.15).legato(0.3),
+  shimmer: note("g5 ~ c6 ~ eb6 ~ g5 ~").s("sine").gain(0.12).legato(0.2),
+  pulse: note("c2 ~ ~ ~ c2 ~ ~ ~").s("square").gain(0.3).legato(0.15)
+)

@@ -203,6 +203,16 @@ xattr -cr "/Applications/The Ultimate Muffin.app"
 
 ## Release Notes
 
+### v0.10.63
+**Intro music, dynamic drawer height, stack expansion for file loading**
+
+- **Intro music**: `data/strudel/intro.strudel` — slow, mysterious, ominous 6-voice composition (sub-bass drone, minor chord pad, dark sawtooth texture, sparkle layers, deep pulse). Loads automatically on the title screen.
+- **Dynamic drawer height**: editor lines fill the full screen height instead of a fixed 8-line cap. `MAX_VISIBLE_LINES` replaced with runtime calculation from available panel height.
+- **Stack expansion for file loading**: `strudel load` expands `stack(a, b, c)` into individual drawer lines — each voice gets its own line with pianoroll, mute toggle, and label.
+- **Named voice labels**: `.strudel` files use `name: pattern` syntax (e.g., `sub:`, `pad:`, `sparkle:`) for labeled voices in the drawer.
+- **Comment stripping on load**: inline comments from `.strudel` files are stripped (except file header) to keep the drawer clean.
+- **Title screen music via strudel load**: `_strudel_play_title()` now loads `intro.strudel` through the RCON file loader instead of hardcoded MML.
+
 ### v0.10.62
 **Refactored _play_current: _resolve_line, _compile_parsed, _resolve_expr**
 

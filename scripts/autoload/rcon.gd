@@ -1832,7 +1832,10 @@ func _cmd_strudel_load(path_or_name: String) -> String:
 	# Preprocess: merge multi-line expressions by tracking paren depth.
 	# This is the same logic as strudel begin/end — a real .strudel file
 	# can have stack(\n  ...,\n  ...\n) across multiple lines.
-	var drawer_lines: Array[String] = _merge_continuation_lines(raw_lines)
+	var merged_lines: Array[String] = _merge_continuation_lines(raw_lines)
+	# Expand stack(...) lines into individual voices for the drawer.
+	# Each voice gets its own line with pianoroll, mute toggle, and highlights.
+	var drawer_lines: Array[String] = _expand_stacks_for_drawer(merged_lines)
 	# Load into drawer and play
 	MusicDrawer._lines.clear()
 	for bl in drawer_lines:
@@ -1870,6 +1873,34 @@ func _resolve_strudel_path(path_or_name: String) -> String:
 			if FileAccess.file_exists(candidate):
 				return candidate
 	return ""
+
+
+func _expand_stacks_for_drawer(lines: Array[String]) -> Array[String]:
+	## Expand stack(...) lines into individual sub-expressions for the drawer.
+	## "stack(a, b, c)" becomes three lines: "a", "b", "c".
+	## Standalone comments are dropped (they were between stack sub-expressions
+	## in the file — noise in the drawer). The file comment at the top is kept
+	## only if it's the very first line.
+	var result: Array[String] = []
+	for li in range(lines.size()):
+		var stripped: String = lines[li].strip_edges()
+		# Drop standalone comments (except the very first line as a file header)
+		if stripped.begins_with("//") or stripped.begins_with("#"):
+			if li == 0:
+				result.append(stripped)
+			continue
+		if stripped.begins_with("stack(") and stripped.ends_with(")"):
+			var inner: String = stripped.substr(6, stripped.length() - 7)
+			var subs: Array = MusicDrawer._split_top_level_commas(inner)
+			if subs.size() > 1:
+				for sub in subs:
+					var sub_text: String = sub["text"] if sub is Dictionary else str(sub)
+					sub_text = sub_text.strip_edges()
+					if not sub_text.is_empty():
+						result.append(sub_text)
+				continue
+		result.append(stripped)
+	return result
 
 
 func _merge_continuation_lines(raw_lines: Array[String]) -> Array[String]:
